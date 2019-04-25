@@ -1,21 +1,22 @@
 use crate::operand::Operand;
 use crate::operator::Operator;
+use colored::*;
 
 pub fn negative_discriminant(a: f64, b: f64, c: f64, d: f64) {
-    println!("Discriminanat is strictly negative, the two solutions are: ");
+    println!("{}", "Discriminanat is strictly negative, the two solutions are: ".white().bold());
     println!("({} + i * sqrt({})) / {})", -b, -d, a * 2.0);
     println!("({} - i * sqrt({})) / {})", -b, -d, a * 2.0);
 }
 
 pub fn null_discriminant(a: f64, b: f64) {
     assert_ne!(a, 0.00);
-    println!("Discriminant is null, the solutions is :");
+    println!("{}", "Discriminant is null, the solutions is :".white().bold());
     println!("{}", -b / (2.0 * a));
 }
 
 pub fn positive_discriminant(a: f64, b: f64, c: f64, d: f64) {
     assert_ne!(a, 0.00);
-    println!("Discriminanat is strictly positive, the two solutions are: ");
+    println!("{}", "Discriminanat is strictly positive, the two solutions are: ".white().bold());
     println!("{}", (-b - d.sqrt()) / (2.0 * a));
     println!("{}", (-b + d.sqrt()) / (2.0 * a));
 }
@@ -32,27 +33,33 @@ pub fn second_degree(a: f64, b: f64, c: f64) {
 
 pub fn first_degree(b: f64, c: f64) {
     assert_ne!(b, 0.00);
-    println!("The solution is:");
+    println!("{}", "The solution is:".white().bold());
     println!("{}", c / b);
 }
 
 pub fn zero_degree() {
-    println!("The solutions are all real numbers");
+    println!("{}", "The solutions are all real numbers".white().bold());
 }
 
 pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) -> String {
-    let mut equation: String = (0..(operands.len() * 2 - 1)).fold(String::new(), |mut equation, i| {
-        if i % 2 == 0 {
-            equation.push_str(operands[i / 2].to_string().as_str())
-        }
-        else {
-            equation.push_str(operators[i / 2].as_str())
-        }
-        equation
-    });
+    let mut equation: String =
+        (0..(operands.len() * 2 - 1)).fold(String::new(), |mut equation, i| {
+            if i % 2 == 0 {
+                equation.push_str(operands[i / 2].to_string().as_str())
+            } else {
+                equation.push_str(operators[i / 2].as_str())
+            }
+            equation
+        });
     equation.push_str(" = 0");
     equation
 }
 
-pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
+pub fn reduce(operands: Vec<Operand>, operators: Vec<Operator>) {
+    println!("{}", "Initial expression representation:".underline());
+    println!("{}", equation_to_string(&operands, &operators));
+    println!("{}", "Reduce steps:".underline());
+
 }
+
+pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {}

@@ -4,7 +4,18 @@ fn build_regex() -> Regex {
     let float = r"\s*(\-?[0-9]+(?:\.[0-9]+)?)";
     let puissance = r"(?:\s*\*\s*X\s*\^\s*([0-9]+))?";
     let multiple_operand = format!("{}{}{}{}", r"(?:\s*([\+\-\*/])", float, puissance, r")*\s*");
-    let expression =  format!("{}{}{}{}{}{}{}{}{}", r"^", float, puissance, multiple_operand, r"(?:(=)", float, puissance, multiple_operand, r")?\s*$");
+    let expression = format!(
+        "{}{}{}{}{}{}{}{}{}",
+        r"^",
+        float,
+        puissance,
+        multiple_operand,
+        r"(?:(=)",
+        float,
+        puissance,
+        multiple_operand,
+        r")?\s*$"
+    );
     Regex::new(&expression[..]).unwrap()
 }
 
@@ -16,7 +27,7 @@ pub fn parse(expression: &str) -> Result<i32, &'static str> {
         None => return Err("Invalid String. The string must be a polynomial expression."),
     };
 
-    // let (operands, operators) = 
+    // let (operands, operators) =
     Ok(0)
 }
 
