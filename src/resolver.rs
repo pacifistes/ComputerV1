@@ -55,11 +55,42 @@ pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) ->
     equation
 }
 
-pub fn reduce(operands: Vec<Operand>, operators: Vec<Operator>) {
+pub fn reduce(operands: Vec<Operand>, operators: Vec<Operator>) -> (Vec<Operand>, Vec<Operator>) {
     println!("{}", "Initial expression representation:".underline());
     println!("{}", equation_to_string(&operands, &operators));
     println!("{}", "Reduce steps:".underline());
-
+    loop {
+        if true {
+            break;
+        }
+    }
+    (operands, operators)
 }
 
-pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {}
+pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, f64) {
+    (0.0, 0.0, 0.0)
+}
+
+pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
+    let (operands, operators) = reduce(operands, operators);
+    let is_invalid_expression = operands.iter().any(|operand| {
+        operand.x_factor >= 3 || operand.x_factor < 0
+    });
+    if is_invalid_expression || operands.len() > 3 {
+        println!(
+                "{}{}",
+                "Error".red().bold(),
+                ": The expression must be a polynomial expression lower or equal to 2"
+                    .white()
+                    .bold(),
+            );
+        return;
+    }
+    let (a, b, c) = find_abc(operands, operators);
+    println!("{}", equation_to_string(&vec![], &vec![]));
+    match (a, b, c) {
+        (a, b, c) if a != 0.0 => second_degree(a, b, c),
+        (a, b, c) if b != 0.0 => first_degree(b, c),
+        _ => zero_degree(),
+    }
+}

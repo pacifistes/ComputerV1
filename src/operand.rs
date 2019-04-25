@@ -1,10 +1,10 @@
 pub struct Operand {
     pub value: f64,
-    pub x_factor: u8,
+    pub x_factor: i8,
 }
 
 impl Operand {
-    pub fn new(value: f64, x_factor: u8) -> Operand {
+    pub fn new(value: f64, x_factor: i8) -> Operand {
         Operand { value, x_factor }
     }
 
