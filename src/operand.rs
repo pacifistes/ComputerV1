@@ -36,4 +36,19 @@ impl Operand {
         self.x_factor -=  other.x_factor;
         self
     }
+
+    pub fn to_string(&self) -> String {
+        let value: String = if self.value < 0.0 {
+            format!("({})", self.value.to_string())
+        }
+        else {
+            self.value.to_string()
+        };
+        if (self.x_factor == 0) {
+            value
+        }
+        else {
+            format!("({} * X^{})", value, self.x_factor)
+        }
+    }
 }

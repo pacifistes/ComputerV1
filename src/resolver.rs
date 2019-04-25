@@ -1,3 +1,6 @@
+use crate::operand::Operand;
+use crate::operator::Operator;
+
 pub fn negative_discriminant(a: f64, b: f64, c: f64, d: f64) {
     println!("Discriminanat is strictly negative, the two solutions are: ");
     println!("({} + i * sqrt({})) / {})", -b, -d, a * 2.0);
@@ -37,3 +40,19 @@ pub fn zero_degree() {
     println!("The solutions are all real numbers");
 }
 
+pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) -> String {
+    let mut equation: String = (0..(operands.len() * 2 - 1)).fold(String::new(), |mut equation, i| {
+        if i % 2 == 0 {
+            equation.push_str(operands[i / 2].to_string().as_str())
+        }
+        else {
+            equation.push_str(operators[i / 2].as_str())
+        }
+        equation
+    });
+    equation.push_str(" = 0");
+    equation
+}
+
+pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
+}
