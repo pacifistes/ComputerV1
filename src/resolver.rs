@@ -75,15 +75,28 @@ pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) ->
     equation
 }
 
-pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) -> Option<usize> {
+pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) -> Option<(usize, usize)> {
     let position = operators.iter().position(|operator| *operator == Operator::Div || *operator == Operator::Mul);
     if position.is_none() {
-        operators.iter().enumerate().position(|(index, operator)| {
-            operands[index].x_power == operands[index + 1].x_power
-        })
+        let pos1 = operands.iter().enumerate().position(|(index, operand_a)| {
+            operands.iter().skip(index + 1).any(|operand_b| {
+                operand_a.x_power == operand_b.x_power
+            })
+        });
+        if (pos1.is_some()) {
+            let pos1 = pos1.unwrap();
+            let pos2 = operands.iter().skip(pos1 + 1).position(|operand_b| {
+                operands[pos1].x_power == operand_b.x_power
+            }).unwrap() + pos1 + 1;
+            Some((pos1, pos2))
+        }
+        else {
+            None
+        }
     }
     else {
-        position
+        let position = position.unwrap();
+        Some((position, position))
     }
 }
 
@@ -113,22 +126,21 @@ pub fn reduce(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
     println!("{}", equation_to_string(operands, operators));
     println!("{}", "Reduce steps:".underline());
     loop {
-        let position = next_operator_position(operands, operators);
-        if position.is_none() {
+        let positions: Option<(usize, usize)> = next_operator_position(operands, operators);
+        if positions.is_none() {
             break;
         }
-        let position = position.unwrap();
-        let a = operands.remove(position);
-        let b = operands.remove(position);
-        let operator = operators.remove(position);
+        let (pos1, pos2) = positions.unwrap();
+        let b = operands.remove(pos2);
+        let a = operands.remove(pos1);
+        let operator = operators.remove(pos2 - 1);
         let new_operand = match operator {
             Operator::Add => a.add(b),
             Operator::Sub => a.sub(b),
             Operator::Mul => a.mul(b),
             Operator::Div => a.div(b),
         };
-        operands.insert(position, new_operand);
-        println!("{}", equation_to_string(operands, operators));
+        operands.insert(pos1, new_operand);
     }
     clear_list(operands, operators);
     println!("{}", "Clear value equal to zero:".underline());
