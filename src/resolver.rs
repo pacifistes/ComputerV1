@@ -2,6 +2,18 @@ use crate::operand::Operand;
 use crate::operator::Operator;
 use colored::*;
 
+macro_rules! clear_stone {
+	($y: expr) => {
+		 !(0b11 << ($y * 2) as u64)
+	};
+}
+
+macro_rules! clear_stone {
+	($y: expr) => {
+		 !(0b11 << ($y * 2) as u64)
+	};
+}
+
 pub fn negative_discriminant(a: f64, b: f64, c: f64, d: f64) {
     println!("{}", "Discriminanat is strictly negative, the two solutions are: ".white().bold());
     println!("({} + i * sqrt({})) / {})", -b, -d, a * 2.0);
@@ -37,11 +49,19 @@ pub fn first_degree(b: f64, c: f64) {
     println!("{}", -c / b);
 }
 
-pub fn zero_degree() {
-    println!("{}", "The solutions are all real numbers".white().bold());
+pub fn zero_degree(c: f64) {
+    if (c == 0.0) {
+        println!("{}", "The solutions are all real numbers".white().bold());
+    }
+    else {
+        println!("{}", "There is no solution".white().bold())
+    }
 }
 
 pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) -> String {
+    if operands.is_empty() {
+        return String::from("0 = 0");
+    }
     let mut equation: String =
         (0..(operands.len() * 2 - 1)).fold(String::new(), |mut equation, i| {
             if i % 2 == 0 {
@@ -55,16 +75,64 @@ pub fn equation_to_string(operands: &Vec<Operand>, operators: &Vec<Operator>) ->
     equation
 }
 
-pub fn reduce(operands: Vec<Operand>, operators: Vec<Operator>) -> (Vec<Operand>, Vec<Operator>) {
-    println!("{}", "Initial expression representation:".underline());
-    println!("{}", equation_to_string(&operands, &operators));
-    println!("{}", "Reduce steps:".underline());
+pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) -> Option<usize> {
+    let position = operators.iter().position(|operator| *operator == Operator::Div || *operator == Operator::Mul);
+    if position.is_none() {
+        operators.iter().enumerate().position(|(index, operator)| {
+            operands[index].x_power == operands[index + 1].x_power
+        })
+    }
+    else {
+        position
+    }
+}
+
+pub fn clear_list(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
     loop {
-        if true {
+        let position = operands.iter().position(|operand| {
+            operand.value == 0.0
+        });
+        if position.is_none() {
             break;
         }
+        else {
+            let position = position.unwrap();
+            let operand = operands.remove(position);
+            if !operators.is_empty() {
+                let operator = operators.remove(position);
+                if (position == 0 && operator == Operator::Sub) {
+                    operands[0].value = -operands[0].value;
+                }
+            }
+        }
     }
-    (operands, operators)
+}
+
+pub fn reduce(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
+    println!("{}", "Initial expression representation:".underline());
+    println!("{}", equation_to_string(operands, operators));
+    println!("{}", "Reduce steps:".underline());
+    loop {
+        let position = next_operator_position(operands, operators);
+        if position.is_none() {
+            break;
+        }
+        let position = position.unwrap();
+        let a = operands.remove(position);
+        let b = operands.remove(position);
+        let operator = operators.remove(position);
+        let new_operand = match operator {
+            Operator::Add => a.add(b),
+            Operator::Sub => a.sub(b),
+            Operator::Mul => a.mul(b),
+            Operator::Div => a.div(b),
+        };
+        operands.insert(position, new_operand);
+        println!("{}", equation_to_string(operands, operators));
+    }
+    clear_list(operands, operators);
+    println!("{}", "Clear value equal to zero:".underline());
+    println!("{}", equation_to_string(operands, operators));
 }
 
 pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, f64) {
@@ -78,20 +146,20 @@ pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, 
     };
     operands.iter().enumerate().fold((0.0, 0.0, 0.0), |mut abc, (index, operand)| {
         match operand.x_power {
-            0 => abc.0 = get_value(operand.value, index, &operators),
+            0 => abc.2 = get_value(operand.value, index, &operators),
             1 => abc.1 = get_value(operand.value, index, &operators),
-            _ => abc.2 = get_value(operand.value, index, &operators),
+            _ => abc.0 = get_value(operand.value, index, &operators),
         };
         abc
     })
 }
 
-pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
-    let (operands, operators) = reduce(operands, operators);
+pub fn resolve(mut operands: Vec<Operand>, mut operators: Vec<Operator>) {
+    reduce(&mut operands, &mut operators);
     let is_invalid_expression = operands.iter().any(|operand| {
         operand.x_power >= 3 || operand.x_power < 0
     });
-    if is_invalid_expression || operands.len() > 3 {
+    if is_invalid_expression {
         println!(
                 "{}{}",
                 "Error".red().bold(),
@@ -102,10 +170,9 @@ pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
         return;
     }
     let (a, b, c) = find_abc(operands, operators);
-    println!("{}", equation_to_string(&vec![], &vec![]));
     match (a, b, c) {
         (a, b, c) if a != 0.0 => second_degree(a, b, c),
         (a, b, c) if b != 0.0 => first_degree(b, c),
-        _ => zero_degree(),
+        _ => zero_degree(c),
     }
 }

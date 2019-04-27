@@ -35,7 +35,7 @@ impl Operand {
     }
 
     pub fn to_string(&self) -> String {
-        if self.value == 0.0 && self.x_power >= 1 {
+        if self.value == 1.0 && self.x_power >= 1 {
             if self.x_power > 1 {
                 return format!("X^{}", self.x_power);
             }

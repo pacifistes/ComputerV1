@@ -18,7 +18,13 @@ pub fn get_x_power(s1: &String, s2: &String) -> isize {
             Err(_) => 1
         }
     };
-    x_power(s1).max(x_power(s2))
+    let power = x_power(s1);
+    if (power == 1) {
+        x_power(s2)
+    }
+    else {
+        power
+    }
 }
 
 pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> Result<Operand, &'static str> {
