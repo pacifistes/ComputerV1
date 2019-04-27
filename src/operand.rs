@@ -8,10 +8,6 @@ impl Operand {
         Operand { value, x_power }
     }
 
-    pub fn can_add_or_sub(&self, other: &Operand) -> bool {
-        self.x_power == other.x_power
-    }
-
     pub fn add(mut self, other: Operand) -> Operand {
         self.value += other.value;
         self

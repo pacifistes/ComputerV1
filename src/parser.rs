@@ -1,8 +1,6 @@
 use crate::operator::Operator;
 use crate::operand::Operand;
-use crate::resolver::equation_to_string;
 use regex::Regex;
-use regex::Captures;
 
 pub fn get_value(s: &String) -> Result<f64, &'static str> {
     match s.parse::<f64>() {
@@ -19,7 +17,7 @@ pub fn get_x_power(s1: &String, s2: &String) -> isize {
         }
     };
     let power = x_power(s1);
-    if (power == 1) {
+    if power == 1 {
         x_power(s2)
     }
     else {
@@ -56,7 +54,7 @@ pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> R
             1.0
         }
     };
-    if (equal_passed) {
+    if equal_passed {
         value = -value;
     }
     let x_power = get_x_power(&captures[3], &captures[5]);
@@ -93,7 +91,7 @@ pub fn parse(mut expression: String) -> Result<(Vec<Operand>, Vec<Operator>), &'
             equal_passed = true;
             operators.push(Operator::Add);
         }
-        if (waiting_operand) {
+        if waiting_operand {
             let operand = get_operand(&expression[index..], equal_passed, &mut index)?;
             operands.push(operand);
             waiting_operand = !waiting_operand;

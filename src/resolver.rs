@@ -2,20 +2,8 @@ use crate::operand::Operand;
 use crate::operator::Operator;
 use colored::*;
 
-macro_rules! clear_stone {
-	($y: expr) => {
-		 !(0b11 << ($y * 2) as u64)
-	};
-}
-
-macro_rules! clear_stone {
-	($y: expr) => {
-		 !(0b11 << ($y * 2) as u64)
-	};
-}
-
-pub fn negative_discriminant(a: f64, b: f64, c: f64, d: f64) {
-    println!("{}", "Discriminanat is strictly negative, the two solutions are: ".white().bold());
+pub fn negative_discriminant(a: f64, b: f64, d: f64) {
+    println!("{}", "Discriminant is strictly negative, the two solutions are: ".white().bold());
     println!("({} + i * sqrt({})) / {})", -b, -d, a * 2.0);
     println!("({} - i * sqrt({})) / {})", -b, -d, a * 2.0);
 }
@@ -26,19 +14,20 @@ pub fn null_discriminant(a: f64, b: f64) {
     println!("{}", -b / (2.0 * a));
 }
 
-pub fn positive_discriminant(a: f64, b: f64, c: f64, d: f64) {
+pub fn positive_discriminant(a: f64, b: f64, d: f64) {
     assert_ne!(a, 0.00);
-    println!("{}", "Discriminanat is strictly positive, the two solutions are: ".white().bold());
+    println!("{}", "Discriminant is strictly positive, the two solutions are: ".white().bold());
     println!("{}", (-b - d.sqrt()) / (2.0 * a));
     println!("{}", (-b + d.sqrt()) / (2.0 * a));
 }
 
 pub fn second_degree(a: f64, b: f64, c: f64) {
     let d: f64 = b * b - 4.0 * a * c;
-
+    println!("discriminant = {}^2 - 4 * {} * {}", b, a, c);
+    println!("discriminant = {}", d);
     match d {
-        negative if negative < 0.0 => negative_discriminant(a, b, c, d),
-        positive if positive > 0.0 => positive_discriminant(a, b, c, d),
+        negative if negative < 0.0 => negative_discriminant(a, b, d),
+        positive if positive > 0.0 => positive_discriminant(a, b, d),
         _ => null_discriminant(a, b),
     };
 }
@@ -50,7 +39,7 @@ pub fn first_degree(b: f64, c: f64) {
 }
 
 pub fn zero_degree(c: f64) {
-    if (c == 0.0) {
+    if c == 0.0 {
         println!("{}", "The solutions are all real numbers".white().bold());
     }
     else {
@@ -83,7 +72,7 @@ pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<O
                 operand_a.x_power == operand_b.x_power
             })
         });
-        if (pos1.is_some()) {
+        if pos1.is_some() {
             let pos1 = pos1.unwrap();
             let pos2 = operands.iter().skip(pos1 + 1).position(|operand_b| {
                 operands[pos1].x_power == operand_b.x_power
@@ -110,10 +99,10 @@ pub fn clear_list(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
         }
         else {
             let position = position.unwrap();
-            let operand = operands.remove(position);
+            operands.remove(position);
             if !operators.is_empty() {
                 let operator = operators.remove(position);
-                if (position == 0 && operator == Operator::Sub) {
+                if position == 0 && operator == Operator::Sub {
                     operands[0].value = -operands[0].value;
                 }
             }
@@ -141,6 +130,7 @@ pub fn reduce(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
             Operator::Div => a.div(b),
         };
         operands.insert(pos1, new_operand);
+        println!("{}", equation_to_string(operands, operators));
     }
     clear_list(operands, operators);
     println!("{}", "Clear value equal to zero:".underline());
@@ -175,16 +165,20 @@ pub fn resolve(mut operands: Vec<Operand>, mut operators: Vec<Operator>) {
         println!(
                 "{}{}",
                 "Error".red().bold(),
-                ": The expression must be a polynomial expression lower or equal to 2"
+                ": The expression must be a polynomial expression beetween 0 and 2 degree"
                     .white()
                     .bold(),
             );
         return;
     }
+    let degree = operands.iter().map(|operand| {
+        operand.x_power
+    }).max().unwrap_or(0);
+    println!("{}", format!("Polynomial degree: {}", degree).underline());
     let (a, b, c) = find_abc(operands, operators);
     match (a, b, c) {
         (a, b, c) if a != 0.0 => second_degree(a, b, c),
-        (a, b, c) if b != 0.0 => first_degree(b, c),
+        (_, b, c) if b != 0.0 => first_degree(b, c),
         _ => zero_degree(c),
     }
 }
