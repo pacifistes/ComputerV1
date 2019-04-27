@@ -1,3 +1,4 @@
+#[derive(PartialEq)]
 pub enum Operator {
     Add,
     Sub,
@@ -12,6 +13,15 @@ impl Operator {
             Operator::Sub => " - ",
             Operator::Mul => " * ",
             Operator::Div => " / ",
+        }
+    }
+
+    pub fn new(operator: &str) -> Operator{
+        match operator {
+            "+" => Operator::Add,
+            "-" => Operator::Sub,
+            "*" => Operator::Mul,
+            _ => Operator::Div,
         }
     }
 }

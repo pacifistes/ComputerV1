@@ -34,7 +34,7 @@ pub fn second_degree(a: f64, b: f64, c: f64) {
 pub fn first_degree(b: f64, c: f64) {
     assert_ne!(b, 0.00);
     println!("{}", "The solution is:".white().bold());
-    println!("{}", c / b);
+    println!("{}", -c / b);
 }
 
 pub fn zero_degree() {
@@ -68,13 +68,28 @@ pub fn reduce(operands: Vec<Operand>, operators: Vec<Operator>) -> (Vec<Operand>
 }
 
 pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, f64) {
-    (0.0, 0.0, 0.0)
+    let get_value = |value: f64, index: usize, operators: &Vec<Operator>| -> f64 {
+        if index != 0 && operators[index - 1] == Operator::Sub {
+            -value
+        }
+        else {
+            value
+        }
+    };
+    operands.iter().enumerate().fold((0.0, 0.0, 0.0), |mut abc, (index, operand)| {
+        match operand.x_power {
+            0 => abc.0 = get_value(operand.value, index, &operators),
+            1 => abc.1 = get_value(operand.value, index, &operators),
+            _ => abc.2 = get_value(operand.value, index, &operators),
+        };
+        abc
+    })
 }
 
 pub fn resolve(operands: Vec<Operand>, operators: Vec<Operator>) {
     let (operands, operators) = reduce(operands, operators);
     let is_invalid_expression = operands.iter().any(|operand| {
-        operand.x_factor >= 3 || operand.x_factor < 0
+        operand.x_power >= 3 || operand.x_power < 0
     });
     if is_invalid_expression || operands.len() > 3 {
         println!(
