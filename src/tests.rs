@@ -25,19 +25,19 @@ mod tests {
             Operand::new(-8.0, 1),
         ];
         let operators: Vec<Operator> = vec![Operator::Add, Operator::Mul, Operator::Sub];
-        let expression: String = String::from("4 + 10 * (25 * X^2) - ((-8) * X^1) = 0");
+        let expression: String = String::from("4 + 10 * 25 * X^2 - -8 * X = 0");
         assert_eq!(expression, equation_to_string(&operands, &operators))
     }
 
     #[test]
     fn test_reduce() {
-        let operands: Vec<Operand> = vec![
+        let mut operands: Vec<Operand> = vec![
             Operand::new(4.0, 0),
             Operand::new(10.0, 0),
             Operand::new(25.0, 2),
             Operand::new(-8.0, 1),
         ];
-        let operators: Vec<Operator> = vec![Operator::Add, Operator::Mul, Operator::Sub];
-        reduce(operands, operators);
+        let mut operators: Vec<Operator> = vec![Operator::Add, Operator::Mul, Operator::Sub];
+        reduce(&mut operands, &mut operators);
     }
 }

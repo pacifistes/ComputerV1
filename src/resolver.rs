@@ -85,7 +85,7 @@ pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<O
     }
     else {
         let position = position.unwrap();
-        Some((position, position))
+        Some((position, position + 1))
     }
 }
 
