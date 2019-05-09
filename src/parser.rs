@@ -29,7 +29,7 @@ pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> R
     lazy_static! {
         static ref regex: Regex = {
             let float = r"(\-?[0-9]+(?:\.[0-9]+)?)";
-            let puissance = r"X(:?\^([0-9]+))?";
+            let puissance = r"X(:?\^(-?[0-9]+))?";
             let operand_expression = format!(r"^(?:{}(?:\*{})?|{})", float, puissance, puissance);
             Regex::new(&operand_expression[..]).unwrap()
         };

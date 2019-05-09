@@ -101,7 +101,7 @@ pub fn clear_list(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
             let position = position.unwrap();
             operands.remove(position);
             if !operators.is_empty() {
-                let operator = operators.remove(position);
+                let operator = operators.remove(position.min(operators.len() - 1));
                 if position == 0 && operator == Operator::Sub {
                     operands[0].value = -operands[0].value;
                 }
