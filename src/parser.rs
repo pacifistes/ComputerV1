@@ -29,7 +29,7 @@ pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> R
     lazy_static! {
         static ref regex: Regex = {
             let float = r"(\-?[0-9]+(?:\.[0-9]+)?)";
-            let puissance = r"X(:?\^(-?[0-9]+))?";
+            let puissance = r"(X)(:?\^(-?[0-9]+))?";
             let operand_expression = format!(r"^(?:{}(?:\*{})?|{})", float, puissance, puissance);
             Regex::new(&operand_expression[..]).unwrap()
         };
@@ -45,6 +45,7 @@ pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> R
         }).collect(),
         None => return Err("Invalid String. The string must be a polynomial expression."),
     };
+    println!("{:?}", captures);
     *index += captures[0].len();
     let mut value = {
         if !captures[1].is_empty() {
@@ -57,7 +58,12 @@ pub fn get_operand(expression: &str, equal_passed: bool, index: &mut usize) -> R
     if equal_passed {
         value = -value;
     }
-    let x_power = get_x_power(&captures[3], &captures[5]);
+    let x_power = if captures[2].is_empty() && captures[5].is_empty() {
+        0
+    }
+    else {
+        get_x_power(&captures[4], &captures[7])
+    };
     Ok(Operand::new(value, x_power))
 }
 

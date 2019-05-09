@@ -89,25 +89,31 @@ pub fn next_operator_position(operands: &mut Vec<Operand>, operators: &mut Vec<O
     }
 }
 
-pub fn clear_list(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
-    loop {
-        let position = operands.iter().position(|operand| {
-            operand.value == 0.0
-        });
-        if position.is_none() {
-            break;
-        }
-        else {
-            let position = position.unwrap();
-            operands.remove(position);
-            if !operators.is_empty() {
-                let operator = operators.remove(position.min(operators.len() - 1));
-                if position == 0 && operator == Operator::Sub {
-                    operands[0].value = -operands[0].value;
-                }
+pub fn sort_list(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
+    let tmp_operands = operands.clone();
+    operands.sort_by(|a, b| a.x_power.cmp(&b.x_power));
+    let nbr_operands = operands.len();
+    let mut sorted_operators: Vec<Operator> = operands
+        .iter()
+        .map(|operand| {
+            let old_pos = tmp_operands.iter().position(|old_operand| {
+                operand.x_power == old_operand.x_power
+            }).unwrap();
+            if old_pos == 0 {
+                Operator::Add
             }
+            else {
+                operators[old_pos - 1]
+            }
+        })
+        .collect();
+    if sorted_operators.len() == nbr_operands {
+        let operator = sorted_operators.remove(0);
+        if operator == Operator::Sub {
+            operands[0].value = -operands[0].value;
         }
     }
+    *operators = sorted_operators;
 }
 
 pub fn reduce(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
@@ -132,8 +138,8 @@ pub fn reduce(operands: &mut Vec<Operand>, operators: &mut Vec<Operator>) {
         operands.insert(pos1, new_operand);
         println!("{}", equation_to_string(operands, operators));
     }
-    clear_list(operands, operators);
-    println!("{}", "Clear value equal to zero:".underline());
+    sort_list(operands, operators);
+    println!("{}", "sorted equation:".underline());
     println!("{}", equation_to_string(operands, operators));
 }
 
@@ -150,7 +156,8 @@ pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, 
         match operand.x_power {
             0 => abc.2 = get_value(operand.value, index, &operators),
             1 => abc.1 = get_value(operand.value, index, &operators),
-            _ => abc.0 = get_value(operand.value, index, &operators),
+            2 => abc.0 = get_value(operand.value, index, &operators),
+            _ => (),
         };
         abc
     })
@@ -159,7 +166,7 @@ pub fn find_abc(operands: Vec<Operand>, operators: Vec<Operator>) -> (f64, f64, 
 pub fn resolve(mut operands: Vec<Operand>, mut operators: Vec<Operator>) {
     reduce(&mut operands, &mut operators);
     let is_invalid_expression = operands.iter().any(|operand| {
-        operand.x_power >= 3 || operand.x_power < 0
+        (operand.x_power >= 3 || operand.x_power < 0) && operand.value != 0.0
     });
     if is_invalid_expression {
         println!(

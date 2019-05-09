@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct Operand {
     pub value: f64,
     pub x_power: isize,
